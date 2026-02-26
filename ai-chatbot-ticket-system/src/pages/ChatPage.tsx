@@ -29,7 +29,7 @@ const ChatPage: React.FC = () => {
   };
   
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="w-full px-0 py-0">
       <div className="flex items-center mb-6">
         <button
           onClick={handleBack}
@@ -44,7 +44,7 @@ const ChatPage: React.FC = () => {
       
       {/* Escalation banner is removed; the View Ticket button now appears inside the chat bubble */}
       
-      <div className="h-[calc(100vh-12rem)]">
+      <div className="h-[calc(100vh-6rem)]">
         <ChatInterface chatId={id} onEscalation={handleEscalation} />
       </div>
     </div>

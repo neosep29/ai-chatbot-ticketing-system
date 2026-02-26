@@ -484,7 +484,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     currentChat?.messages?.filter((msg) => msg.role !== "system") || [];
 
   return (
-    <div className="flex h-full bg-white rounded-lg shadow overflow-hidden">
+        <div className="flex h-full bg-white overflow-hidden">
       <div
         className={`${
           sidebarOpen ? "w-80" : "w-0"
