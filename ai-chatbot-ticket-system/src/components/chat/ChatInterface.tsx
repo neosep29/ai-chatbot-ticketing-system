@@ -377,8 +377,39 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const lastMessage = (currentChat?.messages || []).length
     ? (currentChat?.messages || [])[(currentChat?.messages || []).length - 1]
     : null;
+  const lastAssistantMessage = (() => {
+    const msgs = currentChat?.messages || [];
+    for (let i = msgs.length - 1; i >= 0; i -= 1) {
+      if (msgs[i]?.role === 'assistant') return msgs[i];
+    }
+    return null;
+  })();
+  const lastUserMessage = (() => {
+    const msgs = currentChat?.messages || [];
+    for (let i = msgs.length - 1; i >= 0; i -= 1) {
+      if (msgs[i]?.role === 'user') return msgs[i];
+    }
+    return null;
+  })();
+  const isGreetingText = (text: string) => {
+    const t = String(text || '').toLowerCase();
+    return (
+      /^\s*(hello|hi|hey)\b/.test(t) ||
+      t.includes("i'm your ai support assistant") ||
+      t.includes("how can i help") ||
+      t.includes("what can i assist you") ||
+      t.includes("ask me anything")
+    );
+  };
   const shouldShowSatisfaction =
-    Boolean(lastMessage && lastMessage.role === 'assistant' && !currentChat?.escalatedToTicket);
+    Boolean(
+      lastAssistantMessage &&
+      lastAssistantMessage.role === 'assistant' &&
+      !currentChat?.escalatedToTicket &&
+      !isGreetingText(lastAssistantMessage.content) &&
+      lastUserMessage &&
+      !isGreetingText(lastUserMessage.content)
+    );
 
   useEffect(() => {
     if (!isInitialized) {
