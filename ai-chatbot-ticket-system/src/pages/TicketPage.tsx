@@ -10,7 +10,7 @@ import API_BASE_URL from "../config/api";
 
 const TicketPage: React.FC = () => {
   const navigate = useNavigate();
-  const { getUserTickets, getAllTickets, tickets, rejectTicket, getTicketById } = useTicket();
+  const { getUserTickets, getAllTickets, rejectTicket, pagination } = useTicket();
   const { user } = useAuth();
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [showForwardModal, setShowForwardModal] = useState(false);
@@ -23,13 +23,16 @@ const TicketPage: React.FC = () => {
 
   const isStaff = user?.role === "admin" || user?.role === "staff";
 
+  const [page, setPage] = useState(1);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+
   useEffect(() => {
     if (isStaff) {
-      getAllTickets();
+      getAllTickets(page, 10, activeFilter || undefined);
     } else {
       getUserTickets();
     }
-  }, []);
+  }, [page, activeFilter]);
 
   const loadAvailableStaff = async () => {
     try {
@@ -83,7 +86,7 @@ const TicketPage: React.FC = () => {
         setSelectedTicketId(null);
         toast.success("Ticket forwarded successfully!");
         if (isStaff) {
-          await getAllTickets();
+          await getAllTickets(page, 10, activeFilter || undefined);
         }
       } else {
         toast.error(data.message || "Failed to forward ticket");
@@ -107,7 +110,7 @@ const TicketPage: React.FC = () => {
       setSelectedTicketId(null);
       toast.success("Ticket rejected successfully!");
       if (isStaff) {
-        await getAllTickets();
+        await getAllTickets(page, 10, activeFilter || undefined);
       }
     } catch (error) {
       console.error("Error rejecting ticket:", error);
@@ -140,6 +143,64 @@ const TicketPage: React.FC = () => {
         </motion.h1>
       </div>
 
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          {isStaff && (
+            <>
+              <button
+                onClick={() => setActiveFilter(null)}
+                className={`px-3 py-1 text-sm rounded-md ${activeFilter === null
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setActiveFilter('pending')}
+                className={`px-3 py-1 text-sm rounded-md ${activeFilter === 'pending'
+                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                Pending
+              </button>
+              <button
+                onClick={() => setActiveFilter('accepted')}
+                className={`px-3 py-1 text-sm rounded-md ${activeFilter === 'accepted'
+                  ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                Accepted
+              </button>
+              <button
+                onClick={() => setActiveFilter('in-progress')}
+                className={`px-3 py-1 text-sm rounded-md ${activeFilter === 'in-progress'
+                  ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                In Progress
+              </button>
+              {activeFilter && (
+                <button
+                  onClick={() => setActiveFilter(null)}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Clear filter
+                </button>
+              )}
+            </>
+          )}
+        </div>
+        {isStaff && pagination.pages > 1 && (
+          <div className="text-sm text-gray-600">
+            Page {pagination.page} of {pagination.pages} ({pagination.total} total)
+          </div>
+        )}
+      </div>
+
       <div className="mb-6">
         <p className="text-gray-600 mb-4">
           {isStaff
@@ -166,6 +227,61 @@ const TicketPage: React.FC = () => {
         onForward={isStaff ? handleForwardClick : undefined}
         onReject={isStaff ? handleRejectClick : undefined}
       />
+
+      {/* Pagination for Staff */}
+      {isStaff && pagination.pages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Showing {((pagination.page - 1) * 10) + 1} to {Math.min(pagination.page * 10, pagination.total)} of {pagination.total} results
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={pagination.page === 1}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {[...Array(pagination.pages)].map((_, i) => {
+                const pageNum = i + 1;
+                const isCurrentPage = pageNum === pagination.page;
+                const isNearCurrent = Math.abs(pageNum - pagination.page) <= 2 || pageNum === 1 || pageNum === pagination.pages;
+                
+                if (!isNearCurrent && pageNum !== 1 && pageNum !== pagination.pages) {
+                  if (pageNum === pagination.page - 3 || pageNum === pagination.page + 3) {
+                    return <span key={pageNum} className="px-2 text-gray-400">...</span>;
+                  }
+                  return null;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`px-3 py-1 text-sm border rounded-md ${
+                      isCurrentPage
+                        ? 'bg-blue-500 text-white border-blue-500'
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+              disabled={pagination.page === pagination.pages}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )} 
 
       {showForwardModal && (
         <motion.div
