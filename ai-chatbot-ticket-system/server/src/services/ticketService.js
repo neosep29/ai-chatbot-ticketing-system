@@ -42,7 +42,8 @@ export const getAllTicketsData = async ({ page = 1, limit = 10, status, user }) 
       ...filter,
       $or: [
         { assignedTo: user.id },
-        { assignedTo: null, tag: tagFilter }
+        { forwardedTo: user.id },
+        { assignedTo: null, forwardedTo: null, tag: tagFilter }
       ]
     };
     filter = baseFilter;
@@ -303,16 +304,19 @@ const isForwardedToMe = ticket.forwardedTo && ticket.forwardedTo.toString() === 
 
   const updatedTicket = await findTicketById(id);
 
-  try {
-    const studentName = updatedTicket.userId?.name || 'Student';
-    const studentEmail = updatedTicket.userId?.email || '';
-    const staffName = updatedTicket.acceptedBy?.name || 'Staff';
-    if (studentEmail) {
-      await sendTicketAcceptedToStudent(updatedTicket, studentName, studentEmail, staffName);
+  // Send email asynchronously without blocking response
+  setTimeout(async () => {
+    try {
+      const studentName = updatedTicket.userId?.name || 'Student';
+      const studentEmail = updatedTicket.userId?.email || '';
+      const staffName = updatedTicket.acceptedBy?.name || 'Staff';
+      if (studentEmail) {
+        await sendTicketAcceptedToStudent(updatedTicket, studentName, studentEmail, staffName);
+      }
+    } catch (emailError) {
+      console.error('Error sending acceptance email:', emailError);
     }
-  } catch (emailError) {
-    console.error('Error sending acceptance email:', emailError);
-  }
+  }, 0);
 
   return { status: 200, payload: { success: true, data: updatedTicket } };
 };
@@ -393,23 +397,26 @@ export const rejectTicketData = async ({ id, user, reason }) => {
 
   const populatedTicket = await findTicketById(id);
 
-  try {
-    const studentName = populatedTicket.userId?.name || 'Student';
-    const studentEmail = populatedTicket.userId?.email || '';
-    const staffName = user.name || 'Staff';
+  // Send email asynchronously without blocking response
+  setTimeout(async () => {
+    try {
+      const studentName = populatedTicket.userId?.name || 'Student';
+      const studentEmail = populatedTicket.userId?.email || '';
+      const staffName = user.name || 'Staff';
 
-    if (studentEmail) {
-      await sendTicketRejectedToStudent(
-        populatedTicket,
-        studentName,
-        studentEmail,
-        staffName,
-        reason
-      );
+      if (studentEmail) {
+        await sendTicketRejectedToStudent(
+          populatedTicket,
+          studentName,
+          studentEmail,
+          staffName,
+          reason
+        );
+      }
+    } catch (emailError) {
+      console.error('Error sending rejection email:', emailError);
     }
-  } catch (emailError) {
-    console.error('Error sending rejection email:', emailError);
-  }
+  }, 0);
 
   return {
     status: 200,
@@ -442,19 +449,22 @@ export const forwardTicketData = async ({ id, user, staffId }) => {
 
   const populatedTicket = await findTicketById(id);
 
-  try {
-    const forwardedStaff = await User.findById(staffId);
+  // Send email asynchronously without blocking response
+  setTimeout(async () => {
+    try {
+      const forwardedStaff = await User.findById(staffId);
 
-    if (forwardedStaff && forwardedStaff.email) {
-      await sendTicketForwardedToStaff(
-        populatedTicket,
-        forwardedStaff.name,
-        forwardedStaff.email
-      );
+      if (forwardedStaff && forwardedStaff.email) {
+        await sendTicketForwardedToStaff(
+          populatedTicket,
+          forwardedStaff.name,
+          forwardedStaff.email
+        );
+      }
+    } catch (emailError) {
+      console.error('Error sending forward email:', emailError);
     }
-  } catch (emailError) {
-    console.error('Error sending forward email:', emailError);
-  }
+  }, 0);
 
   return {
     status: 200,

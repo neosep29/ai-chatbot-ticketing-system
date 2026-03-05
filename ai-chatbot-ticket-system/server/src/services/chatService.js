@@ -588,20 +588,23 @@ export const createTicketFromModalData = async ({ chatId, user, form }) => {
 
   await saveChat(chat);
 
-  try {
-    const student = await findUserById(user.id).select('name email');
-    const matchedStaffEmail =
-      ticket.assignedTo ? (await findUserById(ticket.assignedTo).select('email'))?.email : null;
-    if (student) {
-      if (matchedStaffEmail) {
-        await sendTicketCreatedToStaff(ticket, student.name, student.email, [matchedStaffEmail]);
-      } else {
-        await sendTicketCreatedToStaff(ticket, student.name, student.email);
+  // Send email asynchronously without blocking response
+  setTimeout(async () => {
+    try {
+      const student = await findUserById(user.id).select('name email');
+      const matchedStaffEmail =
+        ticket.assignedTo ? (await findUserById(ticket.assignedTo).select('email'))?.email : null;
+      if (student) {
+        if (matchedStaffEmail) {
+          await sendTicketCreatedToStaff(ticket, student.name, student.email, [matchedStaffEmail]);
+        } else {
+          await sendTicketCreatedToStaff(ticket, student.name, student.email);
+        }
       }
+    } catch (emailError) {
+      console.error('Error sending ticket notification email:', emailError);
     }
-  } catch (emailError) {
-    console.error('Error sending ticket notification email:', emailError);
-  }
+  }, 0);
 
   return {
     status: 200,
