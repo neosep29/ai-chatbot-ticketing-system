@@ -1,18 +1,19 @@
 import nodemailer from 'nodemailer';
 import { WEB_APP_BASE_URL } from '../config/api.js';
 
-// Use SendGrid API with port 2525 for DigitalOcean
+// Use SendGrid SMTP directly with port 2525
 let transporter;
 
 console.log('🔍 EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
 
 if (process.env.EMAIL_SERVICE === 'sendgrid' && process.env.SENDGRID_API_KEY) {
-  // Use SendGrid API with port 2525 (DigitalOcean compatible)
+  // Use SendGrid SMTP directly (not API service)
   transporter = nodemailer.createTransport({
-    service: 'SendGrid',
-    port: 2525,  // Use port 2525
+    host: 'smtp.sendgrid.net',     // SendGrid SMTP server
+    port: 2525,                  // DigitalOcean compatible port
+    secure: false,                  // Port 2525 uses STARTTLS
     auth: {
-      user: 'apikey',
+      user: 'apikey',               // SendGrid uses 'apikey' as username
       pass: process.env.SENDGRID_API_KEY,
     },
     tls: {
@@ -22,7 +23,7 @@ if (process.env.EMAIL_SERVICE === 'sendgrid' && process.env.SENDGRID_API_KEY) {
     maxConnections: 5,
     maxMessages: 100,
   });
-  console.log('📧 Using SendGrid API on port 2525 for email service');
+  console.log('📧 Using SendGrid SMTP on port 2525 for email service');
 } else {
   // DEBUG: Force error if not configured
   console.error('❌ SendGrid not configured properly!');
