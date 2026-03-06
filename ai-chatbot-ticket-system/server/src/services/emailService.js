@@ -1,15 +1,41 @@
 import nodemailer from 'nodemailer';
 import { WEB_APP_BASE_URL } from '../config/api.js';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// Support SendGrid API and Gmail SMTP
+let transporter;
+
+if (process.env.EMAIL_SERVICE === 'sendgrid' && process.env.SENDGRID_API_KEY) {
+  // Use SendGrid API (recommended for production)
+  transporter = nodemailer.createTransport({
+    service: 'SendGrid',
+    auth: {
+      user: 'apikey',
+      pass: process.env.SENDGRID_API_KEY,
+    },
+  });
+  console.log('📧 Using SendGrid API for email service');
+} else {
+  // Fallback to Gmail SMTP
+  const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
+  const isSecurePort = smtpPort === 465 || smtpPort === 2525;
+  
+  transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: smtpPort,
+    secure: isSecurePort,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    pool: process.env.SMTP_POOL === 'true',
+    maxConnections: 5,
+    maxMessages: 100,
+  });
+  console.log(`📧 Using Gmail SMTP on port ${smtpPort} for email service`);
+}
 
 const sendEmail = async ({ to, subject, html, meta = {} }) => {
   try {
