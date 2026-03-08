@@ -295,8 +295,13 @@ export const importInquiryFileData = async (file, count) => {
 
       // Progress logging to prevent timeout
       processedCount++;
-      if (processedCount % 10 === 0) {
+      if (processedCount % 5 === 0) {  // Log every 5 instead of 10
         console.log(`Processing inquiry ${processedCount}/${inquiries.length}...`);
+      }
+      
+      // Keep connection alive with heartbeat
+      if (processedCount % 25 === 0) {
+        console.log(`Still processing... ${processedCount} completed, ${inquiries.length - processedCount} remaining`);
       }
 
       // 1️⃣ Create embedding for new inquiry
