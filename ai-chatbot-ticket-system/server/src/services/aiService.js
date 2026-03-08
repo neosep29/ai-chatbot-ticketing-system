@@ -621,8 +621,16 @@ export async function generateInquiriesAI(content, count = 1) {
 
     const rawOutput = response.choices[0].message.content.trim();
 
+    // Clean JSON response - remove markdown backticks if present
+    let cleanedOutput = rawOutput;
+    if (cleanedOutput.startsWith('```json')) {
+      cleanedOutput = cleanedOutput.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (cleanedOutput.startsWith('```')) {
+      cleanedOutput = cleanedOutput.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+
     // Parse JSON safely
-    const inquiries = JSON.parse(rawOutput);
+    const inquiries = JSON.parse(cleanedOutput);
     return inquiries;
   } catch (error) {
     console.error("OpenAI inquiry generation error:", error);
