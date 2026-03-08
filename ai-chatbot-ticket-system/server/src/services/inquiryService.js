@@ -281,6 +281,11 @@ export const importInquiryFileData = async (file, count) => {
     const uniqueQuestions = new Set();
     let processedCount = 0;
 
+    // OPTIMIZATION: Fetch all existing embeddings ONCE
+    console.log('Fetching existing embeddings for duplicate check...');
+    const existingInquiries = await findInquiries({}, { projection: { embedding: 1 } });
+    console.log(`Found ${existingInquiries.length} existing embeddings`);
+
     for (const inquiry of inquiries) {
       if (!inquiry?.question) continue;
 
@@ -291,16 +296,13 @@ export const importInquiryFileData = async (file, count) => {
       // Progress logging to prevent timeout
       processedCount++;
       if (processedCount % 10 === 0) {
-        console.log(`📊 Processing inquiry ${processedCount}/${inquiries.length}...`);
+        console.log(`Processing inquiry ${processedCount}/${inquiries.length}...`);
       }
 
       // 1️⃣ Create embedding for new inquiry
       const newEmbedding = await createEmbedding(preprocessText(inquiry.question, true));
 
-      // 2️⃣ Fetch all existing embeddings from DB
-      const existingInquiries = await findInquiries({}, { projection: { embedding: 1 } });
-
-      // 3️⃣ Check semantic similarity
+      // 2️⃣ Check semantic similarity using pre-fetched embeddings
       let isDuplicate = false;
       for (const existing of existingInquiries) {
         if (!existing.embedding) continue;
