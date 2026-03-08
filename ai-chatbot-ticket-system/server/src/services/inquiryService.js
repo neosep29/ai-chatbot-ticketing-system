@@ -279,6 +279,7 @@ export const importInquiryFileData = async (file, count) => {
 
     // Track exact batch duplicates
     const uniqueQuestions = new Set();
+    let processedCount = 0;
 
     for (const inquiry of inquiries) {
       if (!inquiry?.question) continue;
@@ -286,6 +287,12 @@ export const importInquiryFileData = async (file, count) => {
       const normalizedQuestion = preprocessText(inquiry.question);
       if (uniqueQuestions.has(normalizedQuestion)) continue;
       uniqueQuestions.add(normalizedQuestion);
+
+      // Progress logging to prevent timeout
+      processedCount++;
+      if (processedCount % 10 === 0) {
+        console.log(`📊 Processing inquiry ${processedCount}/${inquiries.length}...`);
+      }
 
       // 1️⃣ Create embedding for new inquiry
       const newEmbedding = await createEmbedding(preprocessText(inquiry.question, true));
