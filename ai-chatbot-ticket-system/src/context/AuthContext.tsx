@@ -53,6 +53,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } else {
       delete axios.defaults.headers.common["Authorization"];
     }
+    
+    // Ensure HTTPS is accepted
+    axios.defaults.headers.common['Accept'] = 'application/json';
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
   }, [token]);
 
   // Check if user is logged in
