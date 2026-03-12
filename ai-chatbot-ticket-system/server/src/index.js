@@ -88,6 +88,9 @@ if (rateLimitEnabled) {
   app.use(limiter);
 }
 
+// Serve static files from dist folder
+app.use(express.static(path.join(__dirname, '../../dist')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
