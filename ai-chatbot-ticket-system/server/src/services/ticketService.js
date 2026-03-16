@@ -206,16 +206,20 @@ export const addTicketMessageData = async ({ id, user, content }) => {
   ticket.messages.push({ sender: user.id, content });
 
   // Create inquiry from staff answer for training data
-  if ((user.role === 'admin' || user.role === 'staff') && ticket.status === 'accepted') {
+  if ((user.role === 'admin' || user.role === 'staff') && ticket.status === 'in-progress') {
     try {
       // Create inquiry from staff answer (disabled for admin review)
-      await createInquiryData({
+      const inquiryResult = await createInquiryData({
         promptQuestion: `Ticket: ${ticket.title} - User Question: ${ticket.description}`,
         promptResponse: content,
         isEnabled: false, // Disabled for admin review first
       });
       
-      console.log('Created inquiry from staff ticket answer for training (disabled)');
+      if (inquiryResult.status === 201) {
+        console.log('Created inquiry from staff ticket answer for training (disabled)');
+      } else {
+        console.log('Inquiry already exists or failed to create:', inquiryResult.payload?.message);
+      }
     } catch (error) {
       console.error('Error creating inquiry from ticket:', error);
     }
