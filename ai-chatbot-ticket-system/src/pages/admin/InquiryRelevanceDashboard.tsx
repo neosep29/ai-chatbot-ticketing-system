@@ -45,8 +45,8 @@ const InquiryRelevanceDashboard: React.FC = () => {
   const fetchInquiries = async (page = 1,
     search = '',
     limit = perPage,
-    relevance = relevanceFilter,
-    updated = updatedFilter
+    relevance: 'all' | 'relevant' | 'not_relevant' = 'all',
+    updated: 'all' | 'updated' | 'not_updated' = 'not_updated'
   ) => {
     try {
       setLoading(true);
@@ -73,7 +73,7 @@ const InquiryRelevanceDashboard: React.FC = () => {
     }
   };
 
-  function handleUpdateInquiryRelevance() {
+  const handleUpdateInquiryRelevance = () => {
     if (!editInquiry) return;
 
     axios.put(
@@ -97,6 +97,10 @@ const InquiryRelevanceDashboard: React.FC = () => {
           setShowEvaluateModal(false);
           setEditInquiry(null);
           fetchInquiries();
+
+          // Track confusion matrix metrics
+          const evaluation = editInquiry.isRelevant === 1 ? 'TP' : 'TN';
+          console.log(`Confusion Matrix Update: ${evaluation} - ${editInquiry.userInquiry.substring(0, 50)}...`);
         } else {
           toast.error(res.data.message || 'Failed to update inquiry');
         }
@@ -105,7 +109,7 @@ const InquiryRelevanceDashboard: React.FC = () => {
         console.error('Error updating inquiry:', err);
         toast.error(err?.response?.data?.message || 'Error updating inquiry');
       });
-  }
+  };
 
   const getPaginationRange = (
     current: number,
@@ -138,10 +142,10 @@ const InquiryRelevanceDashboard: React.FC = () => {
     return range;
   };
 
-  // Fetch when page or search changes
+  // Fetch when page, search, or filters change
   useEffect(() => {
-    fetchInquiries(currentPage, searchQuery);
-  }, [currentPage]);
+    fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
+  }, [currentPage, searchQuery, relevanceFilter, updatedFilter]);
 
   if (loading) {
     return (

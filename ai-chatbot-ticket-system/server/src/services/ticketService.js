@@ -205,6 +205,22 @@ export const addTicketMessageData = async ({ id, user, content }) => {
 
   ticket.messages.push({ sender: user.id, content });
 
+  // Create inquiry from staff answer for training data
+  if ((user.role === 'admin' || user.role === 'staff') && ticket.status === 'accepted') {
+    try {
+      // Create inquiry from staff answer (disabled for admin review)
+      await createInquiryData({
+        promptQuestion: `Ticket: ${ticket.title} - User Question: ${ticket.description}`,
+        promptResponse: content,
+        isEnabled: false, // Disabled for admin review first
+      });
+      
+      console.log('Created inquiry from staff ticket answer for training (disabled)');
+    } catch (error) {
+      console.error('Error creating inquiry from ticket:', error);
+    }
+  }
+
   if ((user.role === 'admin' || user.role === 'staff') && ticket.status === 'accepted') {
     ticket.status = 'in-progress';
   }
@@ -307,6 +323,7 @@ const isForwardedToMe = ticket.forwardedTo && ticket.forwardedTo.toString() === 
   // Send email asynchronously without blocking response
   setTimeout(async () => {
     try {
+      // Re-enabled - Using port 2525 to bypass DigitalOcean restrictions
       const studentName = updatedTicket.userId?.name || 'Student';
       const studentEmail = updatedTicket.userId?.email || '';
       const staffName = updatedTicket.acceptedBy?.name || 'Staff';
@@ -400,10 +417,10 @@ export const rejectTicketData = async ({ id, user, reason }) => {
   // Send email asynchronously without blocking response
   setTimeout(async () => {
     try {
+      // Re-enabled - Using port 2525 to bypass DigitalOcean restrictions
       const studentName = populatedTicket.userId?.name || 'Student';
       const studentEmail = populatedTicket.userId?.email || '';
       const staffName = user.name || 'Staff';
-
       if (studentEmail) {
         await sendTicketRejectedToStudent(
           populatedTicket,
@@ -452,8 +469,8 @@ export const forwardTicketData = async ({ id, user, staffId }) => {
   // Send email asynchronously without blocking response
   setTimeout(async () => {
     try {
+      // Re-enabled - Using port 2525 to bypass DigitalOcean restrictions
       const forwardedStaff = await User.findById(staffId);
-
       if (forwardedStaff && forwardedStaff.email) {
         await sendTicketForwardedToStaff(
           populatedTicket,
