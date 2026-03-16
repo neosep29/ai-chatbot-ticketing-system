@@ -58,10 +58,22 @@ const AdminDashboard: React.FC = () => {
       }
     };
 
+    // Listen for storage events from other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'refreshMetrics' && e.newValue === 'true') {
+        console.log('🔄 Storage event detected - Refreshing confusion matrix...');
+        refreshMetrics();
+        sessionStorage.removeItem('refreshMetrics');
+        console.log('✅ Storage event refresh completed');
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('storage', handleStorageChange);
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 

@@ -103,10 +103,21 @@ const InquiryRelevanceDashboard: React.FC = () => {
           // Force refresh to update confusion matrix
           fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
           
-          // Trigger admin dashboard refresh
+          // IMMEDIATELY trigger admin dashboard refresh
           sessionStorage.setItem('refreshMetrics', 'true');
           console.log('🔄 Triggered admin dashboard metrics refresh');
           console.log('💡 Admin dashboard will update when you return to it');
+          
+          // Also try to refresh metrics immediately if admin dashboard is open in another tab
+          if (typeof window !== 'undefined' && window.opener) {
+            window.opener.postMessage({ type: 'REFRESH_METRICS' }, '*');
+          }
+          
+          // Force a storage event to trigger immediate refresh
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'refreshMetrics',
+            newValue: 'true'
+          }));
         } else {
           toast.error(res.data.message || 'Failed to update inquiry');
         }
@@ -162,10 +173,19 @@ const InquiryRelevanceDashboard: React.FC = () => {
     };
   }, []);
 
-  // Fetch when page, search, or filters change
+  // Fetch when page or filters change (not on every search keystroke)
   useEffect(() => {
     fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
-  }, [currentPage, searchQuery, relevanceFilter, updatedFilter]);
+  }, [currentPage, relevanceFilter, updatedFilter]);
+
+  // Separate useEffect for search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   if (loading) {
     return (
