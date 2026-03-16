@@ -1,5 +1,6 @@
 import { classifyTicket } from '../services/aiService.js';
 import { sendTicketAcceptedToStudent, sendTicketRejectedToStudent, sendTicketForwardedToStaff } from '../services/emailService.js';
+import { createInquiryData } from './inquiryService.js';
 import Ticket from '../models/Ticket.js';
 import User from '../models/User.js';
 import {
@@ -213,15 +214,18 @@ export const addTicketMessageData = async ({ id, user, content }) => {
         promptQuestion: `Ticket: ${ticket.title} - User Question: ${ticket.description}`,
         promptResponse: content,
         isEnabled: false, // Disabled for admin review first
+        createdAt: ticket.createdAt // Use ticket's original creation date
       });
       
       if (inquiryResult.status === 201) {
-        console.log('Created inquiry from staff ticket answer for training (disabled)');
+        console.log(`✅ Created inquiry from ticket #${ticket._id} for training (disabled)`);
+      } else if (inquiryResult.status === 409) {
+        console.log(`ℹ️ Inquiry already exists for ticket #${ticket._id}`);
       } else {
-        console.log('Inquiry already exists or failed to create:', inquiryResult.payload?.message);
+        console.log(`❌ Failed to create inquiry from ticket #${ticket._id}:`, inquiryResult.payload?.message);
       }
     } catch (error) {
-      console.error('Error creating inquiry from ticket:', error);
+      console.error(`❌ Error creating inquiry from ticket #${ticket._id}:`, error);
     }
   }
 

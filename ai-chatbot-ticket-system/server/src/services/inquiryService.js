@@ -138,7 +138,7 @@ export const updateInquiryData = async (id, { promptQuestion, promptResponse, is
   return { status: 200, payload: { success: true, data: updated } };
 };
 
-export const createInquiryData = async ({ promptQuestion, promptResponse, isEnabled = true }) => {
+export const createInquiryData = async ({ promptQuestion, promptResponse, isEnabled = true, createdAt }) => {
   if (!promptQuestion) {
     return {
       status: 400,
@@ -159,7 +159,8 @@ export const createInquiryData = async ({ promptQuestion, promptResponse, isEnab
     promptQuestion,
     promptResponse,
     embedding,
-    isEnabled // Add isEnabled parameter
+    isEnabled, // Add isEnabled parameter
+    ...(createdAt && { createdAt }) // Add custom creation date if provided
   });
 
   return { status: 201, payload: { success: true, data: inquiry } };
