@@ -206,7 +206,7 @@ export const addTicketMessageData = async ({ id, user, content }) => {
   ticket.messages.push({ sender: user.id, content });
 
   // Create inquiry from staff answer for training data
-  if ((user.role === 'admin' || user.role === 'staff') && ticket.status === 'in-progress') {
+  if ((user.role === 'admin' || user.role === 'staff')) {
     try {
       // Create inquiry from staff answer (disabled for admin review)
       const inquiryResult = await createInquiryData({

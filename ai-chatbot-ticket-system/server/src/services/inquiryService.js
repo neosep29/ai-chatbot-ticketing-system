@@ -47,6 +47,14 @@ const cosineSimilarity = (vecA, vecB) => {
 // ========================================
 
 export const getAllInquiryData = async ({ page = 1, limit = 5, search = '', status = 'all' }) => {
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 5;
+
+  // Handle 'all' limit by setting a very high number
+  if (limit === 'all' || isNaN(limit)) {
+    limit = 10000; // Large number to get all records
+  }
+
   const query = {};
 
   if (search) {
@@ -356,8 +364,13 @@ export const importInquiryFileData = async (file, count) => {
 // ========================================
 
 export const getAllInquiryRelevanceData = async ({ page = 1, limit = 5, search = '', relevance = 'all', updated = 'all' }) => {
-  page = parseInt(page);
-  limit = parseInt(limit);
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 5;
+
+  // Handle 'all' limit by setting a very high number
+  if (limit === 'all' || isNaN(limit)) {
+    limit = 10000; // Large number to get all records
+  }
 
   const matchStage = {};
   const andConditions = [];
