@@ -79,6 +79,8 @@ export const fetchMetricsData = async () => {
     is_relevant: Number(item.isRelevant)
   }));
 
+  console.log('📊 Sending to Python API:', JSON.stringify(payload, null, 2));
+
   const normalizeConfusionMatrix = rawMatrix => {
     if (!rawMatrix) {
       return {
@@ -129,6 +131,34 @@ export const fetchMetricsData = async () => {
     };
   };
 
+  // JavaScript fallback calculation
+  const calculateMetricsLocally = (data) => {
+    let tp = 0, fp = 0, fn = 0, tn = 0;
+    
+    data.forEach(item => {
+      const relevant = item.is_relevant === 1;
+      const predicted = item.similarity_score > 0.5; // Assume similarity > 0.5 means predicted relevant
+      
+      if (relevant && predicted) tp++;
+      else if (!relevant && predicted) fp++;
+      else if (relevant && !predicted) fn++;
+      else if (!relevant && !predicted) tn++;
+    });
+
+    const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+    const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
+    const accuracy = tp + fp + fn + tn > 0 ? (tp + tn) / (tp + fp + fn + tn) : 0;
+    const f1_score = precision + recall > 0 ? 2 * (precision * recall) / (precision + recall) : 0;
+
+    return {
+      confusion_matrix: { tp, fp, fn, tn },
+      accuracy: Math.round(accuracy * 100),
+      precision: Math.round(precision * 100),
+      recall: Math.round(recall * 100),
+      f1_score: Math.round(f1_score * 100)
+    };
+  };
+
   try {
     const response = await axios.post(
       `${PYTHON_API_BASE_URL}/metrics/compute-metrics`,
@@ -138,6 +168,8 @@ export const fetchMetricsData = async () => {
         timeout: 15000
       }
     );
+
+    console.log('📈 Python API Response:', JSON.stringify(response.data, null, 2));
 
     if (response.data?.status !== 'success') {
       return {
@@ -158,6 +190,8 @@ export const fetchMetricsData = async () => {
       confusion_matrix: confusionMatrix
     };
 
+    console.log('📊 Final Metrics:', JSON.stringify(normalizedMetrics, null, 2));
+
     return {
       status: 200,
       payload: {
@@ -167,17 +201,19 @@ export const fetchMetricsData = async () => {
     };
   } catch (error) {
     console.error('Metrics fetch error:', error.message);
-    // Return default metrics instead of error
+    console.log('📊 Using JavaScript fallback calculation due to Python API failure');
+    
+    // Use JavaScript fallback calculation
+    const fallbackMetrics = calculateMetricsLocally(payload);
+    console.log('📊 Fallback Metrics:', JSON.stringify(fallbackMetrics, null, 2));
+    
     return {
       status: 200,
       payload: {
         status: 'success',
         metrics: {
-          confusion_matrix: { tp: 0, fp: 0, fn: 0, tn: 0 },
-          accuracy: 0,
-          precision: 0,
-          recall: 0,
-          f1_score: 0
+          ...fallbackMetrics,
+          mean_confidence: 0 // Add missing field
         }
       }
     };
