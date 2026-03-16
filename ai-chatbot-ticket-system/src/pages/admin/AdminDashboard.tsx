@@ -48,9 +48,12 @@ const AdminDashboard: React.FC = () => {
       if (document.visibilityState === 'visible') {
         // Check if we need to refresh (coming from evaluation)
         if (sessionStorage.getItem('refreshMetrics') === 'true') {
+          console.log('🔄 Page visible - Refreshing confusion matrix...');
           refreshMetrics();
           sessionStorage.removeItem('refreshMetrics');
-          console.log('🔄 Auto-refreshed confusion matrix from evaluation page');
+          console.log('✅ Refresh triggered and flag cleared');
+        } else {
+          console.log('ℹ️ Page visible but no refresh needed');
         }
       }
     };
@@ -71,11 +74,24 @@ const AdminDashboard: React.FC = () => {
 
   const refreshMetrics = async () => {
     try {
+      console.log(' Starting metrics refresh...');
       const updatedMetrics = await getMetrics();
       setMetrics(updatedMetrics);
-      console.log('🔄 Confusion matrix refreshed');
+      console.log(' Metrics refreshed successfully');
+      console.log(' New confusion matrix:', {
+        TP: updatedMetrics?.metrics?.confusion_matrix?.tp || 0,
+        FP: updatedMetrics?.metrics?.confusion_matrix?.fp || 0,
+        FN: updatedMetrics?.metrics?.confusion_matrix?.fn || 0,
+        TN: updatedMetrics?.metrics?.confusion_matrix?.tn || 0
+      });
+      console.log(' New metrics:', {
+        Accuracy: updatedMetrics?.metrics?.accuracy || 0,
+        Precision: updatedMetrics?.metrics?.precision || 0,
+        Recall: updatedMetrics?.metrics?.recall || 0,
+        F1_Score: updatedMetrics?.metrics?.f1_score || 0
+      });
     } catch (error) {
-      console.error('Failed to refresh metrics:', error);
+      console.error(' Failed to refresh metrics:', error);
     }
   };
 

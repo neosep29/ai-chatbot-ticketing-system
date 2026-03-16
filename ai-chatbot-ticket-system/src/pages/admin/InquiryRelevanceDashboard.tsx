@@ -95,8 +95,10 @@ const InquiryRelevanceDashboard: React.FC = () => {
           setEditInquiry(null);
           
           // Track confusion matrix metrics
-          const evaluation = editInquiry.isRelevant === 1 ? 'TP' : 'TN';
-          console.log(`Confusion Matrix Update: ${evaluation} - ${editInquiry.userInquiry.substring(0, 50)}...`);
+          const evaluation = editInquiry.isRelevant === 1 ? 'TP (True Positive)' : 'TN (True Negative)';
+          console.log(`🎯 Evaluation Complete: ${evaluation}`);
+          console.log(`📝 Inquiry: ${editInquiry.userInquiry.substring(0, 50)}...`);
+          console.log(`✅ Marked as: ${editInquiry.isRelevant === 1 ? 'Relevant' : 'Not Relevant'}`);
           
           // Force refresh to update confusion matrix
           fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
@@ -104,6 +106,7 @@ const InquiryRelevanceDashboard: React.FC = () => {
           // Trigger admin dashboard refresh
           sessionStorage.setItem('refreshMetrics', 'true');
           console.log('🔄 Triggered admin dashboard metrics refresh');
+          console.log('💡 Admin dashboard will update when you return to it');
         } else {
           toast.error(res.data.message || 'Failed to update inquiry');
         }
