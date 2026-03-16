@@ -42,11 +42,41 @@ const AdminDashboard: React.FC = () => {
     getMetrics().then(setMetrics).catch(console.error);
   }, [page, activeFilter]);
 
+  // Auto-refresh metrics when returning from evaluation page
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Check if we need to refresh (coming from evaluation)
+        if (sessionStorage.getItem('refreshMetrics') === 'true') {
+          refreshMetrics();
+          sessionStorage.removeItem('refreshMetrics');
+          console.log('🔄 Auto-refreshed confusion matrix from evaluation page');
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const getMetrics = async (): Promise<MetricsResponse> => {
     const response = await axios.get<MetricsResponse>(`${API_BASE_URL}/api/metrics`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
+  };
+
+  const refreshMetrics = async () => {
+    try {
+      const updatedMetrics = await getMetrics();
+      setMetrics(updatedMetrics);
+      console.log('🔄 Confusion matrix refreshed');
+    } catch (error) {
+      console.error('Failed to refresh metrics:', error);
+    }
   };
 
   const getTicketStatusCount = (status: string) => {
@@ -157,9 +187,17 @@ const AdminDashboard: React.FC = () => {
               <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">
                 Confusion Matrix
               </h3>
-              <span className="text-xs text-gray-500">
-                Model prediction breakdown
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">
+                  Model prediction breakdown
+                </span>
+                <button
+                  onClick={refreshMetrics}
+                  className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                >
+                  Refresh
+                </button>
+              </div>
             </div>
 
             {/* Axis labels */}

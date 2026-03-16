@@ -141,6 +141,20 @@ const InquiryRelevanceDashboard: React.FC = () => {
     return range;
   };
 
+  // Auto-refresh admin dashboard metrics when returning
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Trigger refresh on admin dashboard when user leaves evaluation page
+      sessionStorage.setItem('refreshMetrics', 'true');
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   // Fetch when page, search, or filters change
   useEffect(() => {
     fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
