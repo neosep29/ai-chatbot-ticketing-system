@@ -100,6 +100,10 @@ const InquiryRelevanceDashboard: React.FC = () => {
           
           // Force refresh to update confusion matrix
           fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
+          
+          // Trigger admin dashboard refresh
+          sessionStorage.setItem('refreshMetrics', 'true');
+          console.log('🔄 Triggered admin dashboard metrics refresh');
         } else {
           toast.error(res.data.message || 'Failed to update inquiry');
         }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Ticket, CheckCircle, Clock, AlertCircle, ArrowRight, BarChart4 } from 'lucide-react';
+import { Ticket, CheckCircle, Clock, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTicket } from '../../context/TicketContext';
 import axios from 'axios';
