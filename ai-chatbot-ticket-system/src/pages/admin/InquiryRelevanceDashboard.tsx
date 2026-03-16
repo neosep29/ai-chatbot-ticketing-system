@@ -79,9 +79,6 @@ const InquiryRelevanceDashboard: React.FC = () => {
     axios.put(
       `${API_BASE_URL}/api/inquiry-relevance/${editInquiry._id}`,
       {
-        userInquiry: editInquiry.userInquiry,
-        generatedInquiry: editInquiry.generatedInquiry,
-        generatedResponse: editInquiry.generatedResponse,
         isRelevant: editInquiry.isRelevant,
         isUpdated: true,
       },
@@ -96,11 +93,13 @@ const InquiryRelevanceDashboard: React.FC = () => {
           toast.success('Inquiry relevance updated successfully');
           setShowEvaluateModal(false);
           setEditInquiry(null);
-          fetchInquiries();
-
+          
           // Track confusion matrix metrics
           const evaluation = editInquiry.isRelevant === 1 ? 'TP' : 'TN';
           console.log(`Confusion Matrix Update: ${evaluation} - ${editInquiry.userInquiry.substring(0, 50)}...`);
+          
+          // Force refresh to update confusion matrix
+          fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
         } else {
           toast.error(res.data.message || 'Failed to update inquiry');
         }
