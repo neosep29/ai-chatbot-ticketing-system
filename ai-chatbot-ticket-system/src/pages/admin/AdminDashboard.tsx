@@ -42,69 +42,11 @@ const AdminDashboard: React.FC = () => {
     getMetrics().then(setMetrics).catch(console.error);
   }, [page, activeFilter]);
 
-  // Auto-refresh metrics when returning from evaluation page
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // Check if we need to refresh (coming from evaluation)
-        if (sessionStorage.getItem('refreshMetrics') === 'true') {
-          console.log('🔄 Page visible - Refreshing confusion matrix...');
-          refreshMetrics();
-          sessionStorage.removeItem('refreshMetrics');
-          console.log('✅ Refresh triggered and flag cleared');
-        } else {
-          console.log('ℹ️ Page visible but no refresh needed');
-        }
-      }
-    };
-
-    // Listen for storage events from other tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'refreshMetrics' && e.newValue === 'true') {
-        console.log('🔄 Storage event detected - Refreshing confusion matrix...');
-        refreshMetrics();
-        sessionStorage.removeItem('refreshMetrics');
-        console.log('✅ Storage event refresh completed');
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
   const getMetrics = async (): Promise<MetricsResponse> => {
     const response = await axios.get<MetricsResponse>(`${API_BASE_URL}/api/metrics`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
-  };
-
-  const refreshMetrics = async () => {
-    try {
-      console.log(' Starting metrics refresh...');
-      const updatedMetrics = await getMetrics();
-      setMetrics(updatedMetrics);
-      console.log(' Metrics refreshed successfully');
-      console.log(' New confusion matrix:', {
-        TP: updatedMetrics?.metrics?.confusion_matrix?.tp || 0,
-        FP: updatedMetrics?.metrics?.confusion_matrix?.fp || 0,
-        FN: updatedMetrics?.metrics?.confusion_matrix?.fn || 0,
-        TN: updatedMetrics?.metrics?.confusion_matrix?.tn || 0
-      });
-      console.log(' New metrics:', {
-        Accuracy: updatedMetrics?.metrics?.accuracy || 0,
-        Precision: updatedMetrics?.metrics?.precision || 0,
-        Recall: updatedMetrics?.metrics?.recall || 0,
-        F1_Score: updatedMetrics?.metrics?.f1_score || 0
-      });
-    } catch (error) {
-      console.error(' Failed to refresh metrics:', error);
-    }
   };
 
   const getTicketStatusCount = (status: string) => {
@@ -203,81 +145,7 @@ const AdminDashboard: React.FC = () => {
             </motion.div>
           ))}
         </div>
-        {/* Confusion Matrix */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full mb-8"
-        >
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                Confusion Matrix
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">
-                  Model prediction breakdown
-                </span>
-                <button
-                  onClick={refreshMetrics}
-                  className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                >
-                  Refresh
-                </button>
-              </div>
-            </div>
-
-            {/* Axis labels */}
-            <div className="grid grid-cols-4 gap-3 text-sm text-center">
-              <div></div>
-              <div className="font-medium text-gray-600">Predicted Relevant</div>
-              <div className="font-medium text-gray-600">Predicted Not Relevant</div>
-              <div></div>
-
-              {/* Actual Relevant */}
-              <div className="font-medium text-gray-600 flex items-center justify-end pr-2">
-                Actual Relevant
-              </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                <p className="text-xs text-emerald-600 uppercase mb-1">True Positive</p>
-                <p className="text-2xl font-bold text-emerald-700">
-                  {metrics?.metrics.confusion_matrix.tp || 0}
-                </p>
-              </div>
-              <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
-                <p className="text-xs text-rose-600 uppercase mb-1">False Negative</p>
-                <p className="text-2xl font-bold text-rose-700">
-                  {metrics?.metrics.confusion_matrix.fn || 0}
-                </p>
-              </div>
-              <div></div>
-
-              {/* Actual Not Relevant */}
-              <div className="font-medium text-gray-600 flex items-center justify-end pr-2">
-                Actual Not Relevant
-              </div>
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <p className="text-xs text-orange-600 uppercase mb-1">False Positive</p>
-                <p className="text-2xl font-bold text-orange-700">
-                  {metrics?.metrics.confusion_matrix.fp || 0}
-                </p>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-xs text-blue-600 uppercase mb-1">True Negative</p>
-                <p className="text-2xl font-bold text-blue-700">
-                  {metrics?.metrics.confusion_matrix.tn || 0}
-                </p>
-              </div>
-              <div></div>
-            </div>
-
-            {/* Helper legend */}
-            <div className="mt-6 text-xs text-gray-500 text-center">
-              TP & TN indicate correct predictions • FP & FN indicate model errors
-            </div>
-          </div>
-        </motion.div>
+        
         <div className="flex justify-center mt-6">
           <button onClick={() => navigate('/admin/inquiry-relevance')} className="px-4 py-2 rounded-md bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition">
             Evaluate Output Relevance

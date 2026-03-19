@@ -100,24 +100,8 @@ const InquiryRelevanceDashboard: React.FC = () => {
           console.log(`📝 Inquiry: ${editInquiry.userInquiry.substring(0, 50)}...`);
           console.log(`✅ Marked as: ${editInquiry.isRelevant === 1 ? 'Relevant' : 'Not Relevant'}`);
           
-          // Force refresh to update confusion matrix
+          // Force refresh to update inquiry list
           fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
-          
-          // IMMEDIATELY trigger admin dashboard refresh
-          sessionStorage.setItem('refreshMetrics', 'true');
-          console.log('🔄 Triggered admin dashboard metrics refresh');
-          console.log('💡 Admin dashboard will update when you return to it');
-          
-          // Also try to refresh metrics immediately if admin dashboard is open in another tab
-          if (typeof window !== 'undefined' && window.opener) {
-            window.opener.postMessage({ type: 'REFRESH_METRICS' }, '*');
-          }
-          
-          // Force a storage event to trigger immediate refresh
-          window.dispatchEvent(new StorageEvent('storage', {
-            key: 'refreshMetrics',
-            newValue: 'true'
-          }));
         } else {
           toast.error(res.data.message || 'Failed to update inquiry');
         }
@@ -158,20 +142,6 @@ const InquiryRelevanceDashboard: React.FC = () => {
 
     return range;
   };
-
-  // Auto-refresh admin dashboard metrics when returning
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Trigger refresh on admin dashboard when user leaves evaluation page
-      sessionStorage.setItem('refreshMetrics', 'true');
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
 
   // Fetch when page or filters change (not on every search keystroke)
   useEffect(() => {
