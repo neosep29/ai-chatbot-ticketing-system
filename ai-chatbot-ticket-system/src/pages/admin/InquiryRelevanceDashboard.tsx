@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ArrowLeft, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import API_BASE_URL, { WEB_APP_BASE_URL } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import { Trash2, Search, Filter, AlertTriangle, ArrowLeft } from 'lucide-react';
 import Modal from '../../components/modal/ui/Modal';
-import API_BASE_URL, { WEB_APP_BASE_URL } from '../../config/api';
 
 interface InquiryRelevance {
   _id: string;
@@ -109,6 +109,30 @@ const InquiryRelevanceDashboard: React.FC = () => {
       .catch(err => {
         console.error('Error updating inquiry:', err);
         toast.error(err?.response?.data?.message || 'Error updating inquiry');
+      });
+  };
+
+  const handleDeleteInquiry = (id: string, userInquiry: string) => {
+    if (!window.confirm(`Are you sure you want to delete this inquiry?\n\n"${userInquiry.substring(0, 100)}..."`)) {
+      return;
+    }
+
+    axios.delete(`${API_BASE_URL}/api/inquiry-relevance/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(res => {
+        if (res.data.success) {
+          toast.success('Inquiry deleted successfully');
+          fetchInquiries(currentPage, searchQuery, relevanceFilter as any, updatedFilter as any);
+        } else {
+          toast.error(res.data.message || 'Failed to delete inquiry');
+        }
+      })
+      .catch(err => {
+        console.error('Error deleting inquiry:', err);
+        toast.error(err?.response?.data?.message || 'Error deleting inquiry');
       });
   };
 
@@ -360,7 +384,7 @@ const InquiryRelevanceDashboard: React.FC = () => {
                     {new Date(inquiry.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex justify-center">
+                    <div className="flex justify-center space-x-2">
                       <button className="text-blue-600 hover:text-blue-900"
                         onClick={() => {
                           setEditInquiry({
@@ -373,6 +397,13 @@ const InquiryRelevanceDashboard: React.FC = () => {
                           setShowEvaluateModal(true);
                         }}>
                         Evaluate
+                      </button>
+                      <button 
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDeleteInquiry(inquiry._id, inquiry.userInquiry)}
+                        title="Delete inquiry"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
