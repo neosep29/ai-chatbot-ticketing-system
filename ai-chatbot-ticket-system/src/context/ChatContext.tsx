@@ -111,22 +111,50 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 
       if (res.data.success) {
         const updatedChat = res.data.data.chat;
-
-        setCurrentChat(updatedChat);
-
-        setChats((prevChats) => {
-          const existingChatIndex = prevChats.findIndex(
-            (chat) => chat._id === updatedChat._id,
-          );
-
-          if (existingChatIndex >= 0) {
-            const newChats = [...prevChats];
-            newChats[existingChatIndex] = updatedChat;
-            return newChats;
-          } else {
-            return [updatedChat, ...prevChats];
+        
+        // Filter out low-quality AI responses
+        const filteredMessages = updatedChat.messages.filter((msg: Message) => {
+          if (msg.role === 'assistant') {
+            const content = msg.content.toLowerCase();
+            
+            // Don't save if response indicates inability to help
+            const isLowQuality = 
+              content.includes('conversation requires escalation to human agent') ||
+              content.includes("i can't fully assist with your request") ||
+              content.includes('try asking a different question') ||
+              content.includes('contacting support by filing a ticket') ||
+              content.includes('escalation to human agent') ||
+              content.includes('cannot assist with your request') ||
+              content.includes('please contact support');
+            
+            return !isLowQuality;
           }
+          return true; // Keep user messages and system messages
         });
+        
+        // Only update chat if there are messages after filtering
+        if (filteredMessages.length > 0) {
+          const chatWithFilteredMessages = {
+            ...updatedChat,
+            messages: filteredMessages
+          };
+          
+          setCurrentChat(chatWithFilteredMessages);
+
+          setChats((prevChats) => {
+            const existingChatIndex = prevChats.findIndex(
+              (chat) => chat._id === chatWithFilteredMessages._id,
+            );
+
+            if (existingChatIndex >= 0) {
+              const newChats = [...prevChats];
+              newChats[existingChatIndex] = chatWithFilteredMessages;
+              return newChats;
+            } else {
+              return [chatWithFilteredMessages, ...prevChats];
+            }
+          });
+        }
 
         return {
           chat: updatedChat,

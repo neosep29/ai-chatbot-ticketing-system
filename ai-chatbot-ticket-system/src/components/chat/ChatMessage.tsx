@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useChat } from '../../context/ChatContext';
+import { Bot } from 'lucide-react';
 
 interface Message {
   _id?: string;
@@ -17,7 +17,6 @@ interface ChatMessageProps {
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, isAI }) => {
   const navigate = useNavigate();
-  const { currentChat, sendMessage } = useChat();
   const messageVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 }
@@ -94,6 +93,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isAI }) => {
         variants={messageVariants}
         transition={{ duration: 0.3 }}
       >
+        {isAI && (
+          <div className="flex items-center mb-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-sm font-medium text-gray-600">AI Assistant</span>
+          </div>
+        )}
         <div
           className={`max-w-[80%] rounded-lg px-4 py-2 ${
             isAI
