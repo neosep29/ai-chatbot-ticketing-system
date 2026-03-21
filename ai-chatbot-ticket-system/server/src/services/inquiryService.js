@@ -30,7 +30,8 @@ import {
   findInquiryByPromptQuestionExcludingId,
   findInquiryRelevanceById,
   saveInquiry,
-  updateInquiryRelevanceMany
+  updateInquiryRelevanceMany,
+  deleteInquiryRelevanceMany
 } from '../repositories/inquiryRepository.js';
 import mongoose from 'mongoose';
 
