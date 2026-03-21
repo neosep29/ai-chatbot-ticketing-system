@@ -493,26 +493,49 @@ export const updateInquiryRelevanceData = async (id, { isRelevant, isUpdated }) 
 };
 
 export const deleteInquiryRelevanceData = async (id) => {
-  const { ObjectId } = require('mongoose').Types;
-  const entry = await findInquiryRelevanceById(id);
-  if (!entry) {
+  try {
+    console.log('🗑️ Deleting inquiry relevance entry with ID:', id);
+    
+    const { ObjectId } = require('mongoose').Types;
+    const entry = await findInquiryRelevanceById(id);
+    
+    if (!entry) {
+      console.log('❌ Entry not found for ID:', id);
+      return {
+        status: 404,
+        payload: {
+          success: false,
+          message: INQUIRY_RELEVANCE_NOT_FOUND_MESSAGE
+        }
+      };
+    }
+
+    console.log('🔄 Converting ID to ObjectId:', id);
+    const objectId = new ObjectId(id);
+    console.log('✅ ObjectId created:', objectId);
+
+    console.log('🗑️ Executing delete operation...');
+    const result = await deleteInquiryRelevanceMany({ _id: objectId });
+    
+    console.log('✅ Delete result:', result);
+    console.log('📊 Deleted count:', result.deletedCount);
+
     return {
-      status: 404,
+      status: 200,
+      payload: {
+        success: true,
+        deletedCount: result.deletedCount,
+        message: RELEVANCE_DELETED_MESSAGE
+      }
+    };
+  } catch (error) {
+    console.error('💥 Error in deleteInquiryRelevanceData:', error);
+    return {
+      status: 500,
       payload: {
         success: false,
-        message: INQUIRY_RELEVANCE_NOT_FOUND_MESSAGE
+        message: 'Failed to delete inquiry relevance entry: ' + error.message
       }
     };
   }
-
-  const result = await deleteInquiryRelevanceMany({ _id: new ObjectId(id) });
-
-  return {
-    status: 200,
-    payload: {
-      success: true,
-      deletedCount: result.deletedCount,
-      message: RELEVANCE_DELETED_MESSAGE
-    }
-  };
 };
