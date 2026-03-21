@@ -7,7 +7,8 @@ import {
   getInquiryRelevanceByIdData,
   importInquiryFileData,
   updateInquiryData,
-  updateInquiryRelevanceData
+  updateInquiryRelevanceData,
+  deleteInquiryRelevanceData
 } from '../services/inquiryService.js';
 import { SERVER_ERROR_MESSAGE } from '../constants/controllerMessages.js';
 
@@ -150,6 +151,22 @@ export const getInquiryRelevanceById = async (req, res) => {
 export const updateInquiryRelevance = async (req, res) => {
   try {
     const result = await updateInquiryRelevanceData(req.params.id, req.body);
+    res.status(result.status).json(result.payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: SERVER_ERROR_MESSAGE
+    });
+  }
+};
+
+// @desc    Delete inquiry relevance entry
+// @route   DELETE /api/inquiry-relevance/:id
+// @access  Private/Admin
+export const deleteInquiryRelevance = async (req, res) => {
+  try {
+    const result = await deleteInquiryRelevanceData(req.params.id);
     res.status(result.status).json(result.payload);
   } catch (error) {
     console.error(error);
