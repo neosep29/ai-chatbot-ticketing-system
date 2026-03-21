@@ -16,6 +16,7 @@ import {
   PROMPT_QUESTION_EXISTS_MESSAGE,
   PROMPT_QUESTION_REQUIRED_MESSAGE,
   RELEVANCE_UPDATED_MESSAGE,
+  RELEVANCE_DELETED_MESSAGE,
   UNSUPPORTED_FILE_TYPE_MESSAGE
 } from '../constants/controllerMessages.js';
 import {
@@ -467,23 +468,13 @@ export const updateInquiryRelevanceData = async (id, { isRelevant, isUpdated }) 
   if (!entry) {
     return {
       status: 404,
-      payload: { success: false, message: INQUIRY_RELEVANCE_NOT_FOUND_MESSAGE }
-    };
-  }
-
-  if (isRelevant === undefined) {
-    return {
-      status: 400,
-      payload: { success: false, message: IS_RELEVANT_REQUIRED_MESSAGE }
+      payload: { success: false, message: RELEVANCE_NOT_FOUND_MESSAGE }
     };
   }
 
   const result = await updateInquiryRelevanceMany(
-    {
-      userInquiry: entry.userInquiry,
-      generatedInquiry: entry.generatedInquiry
-    },
-    {
+    { _id: id },
+    { 
       $set: {
         isRelevant,
         ...(typeof isUpdated === 'boolean' ? { isUpdated } : {})

@@ -17,6 +17,7 @@ export const FILE_EXCEEDS_CHAR_LIMIT_MESSAGE = (maxChars) =>
 export const INQUIRY_RELEVANCE_NOT_FOUND_MESSAGE = 'Inquiry relevance entry not found';
 export const IS_RELEVANT_REQUIRED_MESSAGE = 'isRelevant is required';
 export const RELEVANCE_UPDATED_MESSAGE = 'Relevance updated for all matching inquiries';
+export const RELEVANCE_DELETED_MESSAGE = 'Inquiry relevance entry deleted successfully';
 export const INSUFFICIENT_METRICS_DATA_MESSAGE = 'Insufficient data to compute metrics';
 export const METRICS_FETCH_FAILED_MESSAGE = 'Failed to fetch metrics';
 export const TRAINING_SYNC_FAILED_MESSAGE = 'Failed to sync training data';
