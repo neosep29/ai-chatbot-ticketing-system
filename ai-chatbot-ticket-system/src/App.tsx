@@ -27,6 +27,7 @@ import { ChatProvider } from './context/ChatContext';
 import { TicketProvider } from './context/TicketContext';
 import InquiryDashboard from './pages/admin/InquiryDashboard';
 import InquiryRelevanceDashboard from './pages/admin/InquiryRelevanceDashboard';
+import BetaReset from './pages/admin/BetaReset';
 
 function App() {
   return (
@@ -89,6 +90,11 @@ function App() {
                   <Route path="/admin/inquiry-relevance" element={
                     <AdminRoute>
                       <InquiryRelevanceDashboard />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/beta-reset" element={
+                    <AdminRoute>
+                      <BetaReset />
                     </AdminRoute>
                   } />
                   <Route path="/admin/tickets/:id" element={
