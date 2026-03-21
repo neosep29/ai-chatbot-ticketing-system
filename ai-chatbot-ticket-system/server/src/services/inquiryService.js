@@ -491,3 +491,27 @@ export const updateInquiryRelevanceData = async (id, { isRelevant, isUpdated }) 
     }
   };
 };
+
+export const deleteInquiryRelevanceData = async (id) => {
+  const entry = await findInquiryRelevanceById(id);
+  if (!entry) {
+    return {
+      status: 404,
+      payload: {
+        success: false,
+        message: INQUIRY_RELEVANCE_NOT_FOUND_MESSAGE
+      }
+    };
+  }
+
+  const result = await deleteInquiryRelevanceMany({ _id: id });
+
+  return {
+    status: 200,
+    payload: {
+      success: true,
+      deletedCount: result.deletedCount,
+      message: RELEVANCE_DELETED_MESSAGE
+    }
+  };
+};
