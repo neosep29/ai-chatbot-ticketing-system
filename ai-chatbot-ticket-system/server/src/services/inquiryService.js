@@ -32,6 +32,7 @@ import {
   saveInquiry,
   updateInquiryRelevanceMany
 } from '../repositories/inquiryRepository.js';
+import mongoose from 'mongoose';
 
 // ========================================
 // Cosine similarity function for semantic duplicate detection
@@ -496,7 +497,6 @@ export const deleteInquiryRelevanceData = async (id) => {
   try {
     console.log('🗑️ Deleting inquiry relevance entry with ID:', id);
     
-    const { ObjectId } = require('mongoose').Types;
     const entry = await findInquiryRelevanceById(id);
     
     if (!entry) {
@@ -511,7 +511,7 @@ export const deleteInquiryRelevanceData = async (id) => {
     }
 
     console.log('🔄 Converting ID to ObjectId:', id);
-    const objectId = new ObjectId(id);
+    const objectId = new mongoose.Types.ObjectId(id);
     console.log('✅ ObjectId created:', objectId);
 
     console.log('🗑️ Executing delete operation...');
