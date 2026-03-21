@@ -493,6 +493,7 @@ export const updateInquiryRelevanceData = async (id, { isRelevant, isUpdated }) 
 };
 
 export const deleteInquiryRelevanceData = async (id) => {
+  const { ObjectId } = require('mongoose').Types;
   const entry = await findInquiryRelevanceById(id);
   if (!entry) {
     return {
@@ -504,7 +505,7 @@ export const deleteInquiryRelevanceData = async (id) => {
     };
   }
 
-  const result = await deleteInquiryRelevanceMany({ _id: id });
+  const result = await deleteInquiryRelevanceMany({ _id: new ObjectId(id) });
 
   return {
     status: 200,
