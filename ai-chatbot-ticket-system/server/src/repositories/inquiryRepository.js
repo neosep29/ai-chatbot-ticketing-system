@@ -49,6 +49,8 @@ export const findInquiryRelevanceEntries = (filter, options = {}) => {
   return query.lean();
 };
 
+export const countInquiryRelevance = (filter) => InquiryRelevance.countDocuments(filter);
+
 /** @type {InquiryRepository} */
 export const inquiryRepository = {
   countInquiries,
