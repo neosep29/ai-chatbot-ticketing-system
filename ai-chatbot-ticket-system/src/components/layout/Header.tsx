@@ -6,7 +6,6 @@ import {
   User,
   LogOut,
   Settings,
-  BarChart3,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTicket } from "../../context/TicketContext";
@@ -153,16 +152,6 @@ const Header: React.FC = () => {
                           {badgeCount > 99 ? "99+" : badgeCount}
                         </span>
                       )}
-                    </Link>
-                  )}
-
-                  {isStaff && (
-                    <Link
-                      to="/staff/stats"
-                      className="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium flex items-center"
-                    >
-                      <BarChart3 className="h-5 w-5 mr-1" />
-                      <span>My Stats</span>
                     </Link>
                   )}
 

@@ -4,7 +4,7 @@ import { WEB_APP_BASE_URL } from '../config/api.js';
 // Use SendGrid SMTP directly with port 2525
 let transporter;
 
-console.log('🔍 EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
+console.log('EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
 
 if (process.env.EMAIL_SERVICE === 'sendgrid' && process.env.SENDGRID_API_KEY) {
   // Use SendGrid SMTP directly (not API service)
@@ -23,12 +23,12 @@ if (process.env.EMAIL_SERVICE === 'sendgrid' && process.env.SENDGRID_API_KEY) {
     maxConnections: 5,
     maxMessages: 100,
   });
-  console.log('📧 Using SendGrid SMTP on port 2525 for email service');
+  console.log('Using SendGrid SMTP on port 2525 for email service');
 } else {
   // DEBUG: Force error if not configured
-  console.error('❌ SendGrid not configured properly!');
-  console.error('❌ EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
-  console.error('❌ SENDGRID_API_KEY exists:', !!process.env.SENDGRID_API_KEY);
+  console.error('SendGrid not configured properly!');
+  console.error('EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
+  console.error('SENDGRID_API_KEY exists:', !!process.env.SENDGRID_API_KEY);
   throw new Error('SendGrid not configured - check EMAIL_SERVICE and SENDGRID_API_KEY');
 }
 
@@ -42,13 +42,13 @@ const sendEmail = async ({ to, subject, html, meta = {} }) => {
           .filter(Boolean);
 
     console.log("======================================");
-    console.log("📨 EMAIL SEND START");
-    console.log("📌 Subject:", subject);
-    console.log("📩 To:", toList.length ? toList.join(", ") : "N/A");
+    console.log("EMAIL SEND START");
+    console.log("Subject:", subject);
+    console.log("Sent To:", toList.length ? toList.join(", ") : "N/A");
 
-    if (meta.ticketId) console.log("🆔 Ticket ID:", String(meta.ticketId));
-    if (meta.studentName) console.log("👨‍🎓 Student:", meta.studentName);
-    if (meta.studentEmail) console.log("📧 Student Email:", meta.studentEmail);
+    if (meta.ticketId) console.log("Ticket ID:", String(meta.ticketId));
+    if (meta.studentName) console.log("Student:", meta.studentName);
+    if (meta.studentEmail) console.log("Student Email:", meta.studentEmail);
 
     console.log("======================================");
 
@@ -59,14 +59,14 @@ const sendEmail = async ({ to, subject, html, meta = {} }) => {
       html,
     });
 
-    console.log("✅ EMAIL SENT");
-    console.log("📬 Message ID:", info.messageId);
-    console.log("📤 Final TO:", toList.join(", "));
+    console.log("EMAIL SENT");
+    console.log("Message ID:", info.messageId);
+    console.log("Final TO:", toList.join(", "));
     console.log("======================================");
 
     return info;
   } catch (error) {
-    console.error("❌ EMAIL SEND ERROR");
+    console.error("EMAIL SEND ERROR");
     console.error("Message:", error.message);
     throw error;
   }
