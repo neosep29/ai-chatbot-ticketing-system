@@ -62,8 +62,10 @@ export const inquiryRepository = {
   createInquiryRelevance,
   findInquiryRelevanceById,
   updateInquiryRelevanceMany,
+  deleteInquiryRelevanceMany,
   aggregateInquiryRelevance,
   findEnabledInquiries,
-  findInquiryRelevanceEntries
+  findInquiryRelevanceEntries,
+  countInquiryRelevance
 };
 
