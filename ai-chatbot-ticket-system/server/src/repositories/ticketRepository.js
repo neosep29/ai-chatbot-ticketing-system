@@ -63,5 +63,6 @@ export const ticketRepository = {
   findTicketByIdWithChat,
   findTicketByIdRaw,
   saveTicket,
-  createTicket
+  createTicket,
+  deleteManyTickets
 };
