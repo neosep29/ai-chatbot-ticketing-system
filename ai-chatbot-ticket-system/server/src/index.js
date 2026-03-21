@@ -18,7 +18,6 @@ import inquiryRoutes from './routes/inquiry.js';
 import inquiryRelevanceRoutes from './routes/inquiryRelevance.js';
 import ticketConcernsRoutes from './routes/ticketConcerns.js';
 import metricsRoutes from './routes/metrics.js';
-import betaResetRoutes from './routes/betaReset.js';
 import { listMigrations, runMigration } from './migrations/index.js';
 import path from "path";
 import { fileURLToPath } from "url";
@@ -101,7 +100,6 @@ app.use('/api/inquiry', inquiryRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/inquiry-relevance', inquiryRelevanceRoutes);
 app.use('/api/ticket-concerns', ticketConcernsRoutes);
-app.use('/api/beta-reset', betaResetRoutes);
 
 // Root route
 app.get('/', (req, res) => {

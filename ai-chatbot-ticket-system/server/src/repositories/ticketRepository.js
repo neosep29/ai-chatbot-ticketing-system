@@ -54,8 +54,6 @@ export const createTicket = async (data) => {
   return Ticket.create(payload);
 };
 
-export const deleteManyTickets = (filter) => Ticket.deleteMany(filter);
-
 /** @type {TicketRepository} */
 export const ticketRepository = {
   findTickets,
@@ -65,6 +63,5 @@ export const ticketRepository = {
   findTicketByIdWithChat,
   findTicketByIdRaw,
   saveTicket,
-  createTicket,
-  deleteManyTickets
+  createTicket
 };
