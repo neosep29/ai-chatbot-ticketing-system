@@ -29,6 +29,9 @@ export const findInquiryRelevanceById = (id) => InquiryRelevance.findById(id);
 export const updateInquiryRelevanceMany = (filter, update) =>
   InquiryRelevance.updateMany(filter, update);
 
+export const deleteInquiryRelevanceMany = (filter) =>
+  InquiryRelevance.deleteMany(filter);
+
 export const aggregateInquiryRelevance = (pipeline) =>
   InquiryRelevance.aggregate(pipeline);
 
@@ -64,6 +67,7 @@ export const inquiryRepository = {
   createInquiryRelevance,
   findInquiryRelevanceById,
   updateInquiryRelevanceMany,
+  deleteInquiryRelevanceMany,
   aggregateInquiryRelevance,
   findEnabledInquiries,
   findInquiryRelevanceEntries,
