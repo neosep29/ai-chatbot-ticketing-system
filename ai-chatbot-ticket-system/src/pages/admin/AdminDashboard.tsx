@@ -146,12 +146,9 @@ const AdminDashboard: React.FC = () => {
           ))}
         </div>
         
-        <div className="flex justify-center mt-6 gap-4">
+        <div className="flex justify-center mt-6">
           <button onClick={() => navigate('/admin/inquiry-relevance')} className="px-4 py-2 rounded-md bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition">
             Evaluate Output Relevance
-          </button>
-          <button onClick={() => navigate('/admin/beta-reset')} className="px-4 py-2 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition">
-            Beta Reset
           </button>
         </div>
       </div>

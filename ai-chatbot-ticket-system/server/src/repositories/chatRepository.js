@@ -13,20 +13,11 @@ export const findChatsByUserId = (userId) =>
 
 export const deleteChatsByUserId = (userId) => Chat.deleteMany({ userId });
 
-export const findChats = (filter) => Chat.find(filter);
-
-export const countChats = (filter) => Chat.countDocuments(filter);
-
-export const deleteManyChats = (filter) => Chat.deleteMany(filter);
-
 /** @type {ChatRepository} */
 export const chatRepository = {
   findChatById,
   createChat,
   saveChat,
   findChatsByUserId,
-  deleteChatsByUserId,
-  findChats,
-  countChats,
-  deleteManyChats
+  deleteChatsByUserId
 };

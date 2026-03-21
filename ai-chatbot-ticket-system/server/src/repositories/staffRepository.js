@@ -44,12 +44,6 @@ export const findStaffByFilter = (filter, options = {}) => {
   return query;
 };
 
-export const findStaff = (filter) => User.find(filter);
-
-export const countStaff = (filter) => User.countDocuments(filter);
-
-export const updateManyStaff = (filter, update) => User.updateMany(filter, update);
-
 /** @type {StaffRepository} */
 export const staffRepository = {
   findStaffMembers,
@@ -63,8 +57,5 @@ export const staffRepository = {
   findTicketsByAssignee,
   findTicketsByAssigneeWithUser,
   unassignTickets,
-  findStaffByFilter,
-  findStaff,
-  countStaff,
-  updateManyStaff
+  findStaffByFilter
 };
