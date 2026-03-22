@@ -1,21 +1,23 @@
-const express = require('express');
-const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
+
+ const express = require('express');
+ const router = express.Router();
+ const auth = require('../middleware/auth');
+const { createTicket, getTickets, getTicket, updateTicket } = require('../controllers/ticketController');
 const { createTicket, getTickets, getTicket, updateTicket, getTicketHistory } = require('../controllers/ticketController');
-
-// Create ticket
-router.post('/', protect, authorize('user', 'staff'), createTicket);
-
-// Get all tickets
-router.get('/', protect, authorize('user', 'staff'), getTickets);
-
-// Get single ticket
-router.get('/:id', protect, authorize('user', 'staff'), getTicket);
-
-// Get ticket status history
-router.get('/:id/history', protect, authorize('user', 'staff'), getTicketHistory);
-
-// Update ticket
-router.put('/:id', protect, authorize('user', 'staff'), updateTicket);
-
-module.exports = router;
+ 
+ // Create ticket
+ router.post('/', auth, createTicket);
+ 
+ // Get all tickets
+ router.get('/', auth, getTickets);
+ 
+ // Get single ticket
+ router.get('/:id', auth, getTicket);
+ 
++// Get ticket status history
++router.get('/:id/history', auth, getTicketHistory);
++
+ // Update ticket
+ router.put('/:id', auth, updateTicket);
+ 
+ module.exports = router;

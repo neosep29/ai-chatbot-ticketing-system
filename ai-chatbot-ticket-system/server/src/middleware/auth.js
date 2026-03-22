@@ -48,10 +48,6 @@ export const protect = async (req, res, next) => {
 // Grant access to specific roles
 export const authorize = (...roles) => {
   return (req, res, next) => {
-    console.log(' Auth Middleware - User role:', req.user?.role);
-    console.log(' Auth Middleware - Required roles:', roles);
-    console.log(' Auth Middleware - Roles includes check:', roles.includes(req.user?.role));
-    
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -65,7 +61,6 @@ export const authorize = (...roles) => {
         message: `User role ${req.user.role} is not authorized to access this route`
       });
     }
-    
     next();
   };
 };

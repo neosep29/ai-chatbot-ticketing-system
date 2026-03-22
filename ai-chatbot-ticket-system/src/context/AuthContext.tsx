@@ -23,7 +23,6 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isStaff: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -44,7 +43,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   );
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isStaff, setIsStaff] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const inactivityTimerRef = useRef<number | null>(null);
 
@@ -86,7 +84,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           setUser(res.data.data);
           setIsAuthenticated(true);
           setIsAdmin(res.data.data.role === "admin");
-          setIsStaff(res.data.data.role === "staff");
         } catch (error) {
           console.error("Auth error:", error);
           localStorage.removeItem("token");
@@ -220,7 +217,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         token,
         isAuthenticated,
         isAdmin,
-        isStaff,
         loading,
         login,
         register,

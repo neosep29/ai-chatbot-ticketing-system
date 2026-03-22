@@ -11,15 +11,10 @@ import { protect, authorize } from '../middleware/auth.js';
 const router = express.Router();
 
 // @route /api/staff/inquiries
-router.get('/', protect, (req, res, next) => {
-  console.log('🔍 Staff Inquiry GET Route - Checking authorization...');
-  console.log('🔍 Staff Inquiry GET Route - User:', req.user);
-  return authorize('staff')(req, res, next);
-}, getAllInquiry);
-
-router.get('/:id', protect, authorize('staff'), getInquiryById);
-router.post('/', protect, authorize('staff'), createInquiry);
-router.put('/:id', protect, authorize('staff'), updateInquiry);
-router.delete('/:id', protect, authorize('staff'), deleteInquiry);
+router.get('/', protect, authorize('staff', 'admin'), getAllInquiry);
+router.get('/:id', protect, authorize('staff', 'admin'), getInquiryById);
+router.post('/', protect, authorize('staff', 'admin'), createInquiry);
+router.put('/:id', protect, authorize('staff', 'admin'), updateInquiry);
+router.delete('/:id', protect, authorize('staff', 'admin'), deleteInquiry);
 
 export default router;
