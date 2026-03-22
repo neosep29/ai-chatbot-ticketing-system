@@ -98,12 +98,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/staff/inquiries', staffInquiryRoutes);
 app.use('/api/inquiry', inquiryRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/inquiry-relevance', inquiryRelevanceRoutes);
 app.use('/api/ticket-concerns', ticketConcernsRoutes);
 app.use('/api/beta-reset', betaResetRoutes);
-app.use('/api/staff/inquiries', staffInquiryRoutes);
 
 // Root route
 app.get('/', (req, res) => {
