@@ -65,7 +65,7 @@ const InquiryManagement: React.FC = () => {
   const fetchInquiries = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/inquiry?page=${currentPage}&limit=10&status=${statusFilter === 'all' ? 'all' : statusFilter === 'enabled' ? 'enabled' : 'disabled'}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/staff/inquiries?page=${currentPage}&limit=10&status=${statusFilter === 'all' ? 'all' : statusFilter === 'enabled' ? 'enabled' : 'disabled'}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setInquiries(response.data.data);
@@ -81,7 +81,7 @@ const InquiryManagement: React.FC = () => {
   const handleCreate = async () => {
     try {
       setFormLoading(true);
-      await axios.post(`${API_BASE_URL}/api/inquiry`, formData, {
+      await axios.post(`${API_BASE_URL}/api/staff/inquiries`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShowCreateModal(false);
@@ -100,7 +100,7 @@ const InquiryManagement: React.FC = () => {
     
     try {
       setFormLoading(true);
-      await axios.put(`${API_BASE_URL}/api/inquiry/${selectedInquiry._id}`, formData, {
+      await axios.put(`${API_BASE_URL}/api/staff/inquiries/${selectedInquiry._id}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShowEditModal(false);
@@ -119,7 +119,7 @@ const InquiryManagement: React.FC = () => {
     if (!selectedInquiry) return;
     
     try {
-      await axios.delete(`${API_BASE_URL}/api/inquiry/${selectedInquiry._id}`, {
+      await axios.delete(`${API_BASE_URL}/api/staff/inquiries/${selectedInquiry._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShowDeleteModal(false);
@@ -148,7 +148,7 @@ const InquiryManagement: React.FC = () => {
 
   const toggleInquiryStatus = async (inquiry: Inquiry) => {
     try {
-      await axios.put(`${API_BASE_URL}/api/inquiry/${inquiry._id}`, {
+      await axios.put(`${API_BASE_URL}/api/staff/inquiries/${inquiry._id}`, {
         promptQuestion: inquiry.promptQuestion,
         promptResponse: inquiry.promptResponse,
         isEnabled: !inquiry.isEnabled
