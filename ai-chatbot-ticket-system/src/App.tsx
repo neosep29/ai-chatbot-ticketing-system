@@ -20,6 +20,7 @@ import TicketDetails from './pages/admin/TicketDetails';
 import StaffDashboard from './pages/admin/StaffDashboard';
 import StaffStats from './pages/StaffStats';
 import Profile from './pages/Profile';
+import InquiryManagement from './pages/staff/InquiryManagement';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
@@ -96,6 +97,11 @@ function App() {
                     <AdminRoute>
                       <BetaReset />
                     </AdminRoute>
+                  } />
+                  <Route path="/staff/inquiries" element={
+                    <PrivateRoute>
+                      <InquiryManagement />
+                    </PrivateRoute>
                   } />
                   <Route path="/admin/tickets/:id" element={
                     <AdminRoute>

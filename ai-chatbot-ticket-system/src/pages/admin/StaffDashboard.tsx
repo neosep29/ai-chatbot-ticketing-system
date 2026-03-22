@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Users, UserPlus, BarChart3, Clock, CheckCircle, AlertTriangle, Star, Eye, EyeOff } from 'lucide-react';
+import { Users, UserPlus, BarChart3, Clock, CheckCircle, AlertTriangle, Star, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -206,7 +206,16 @@ const StaffDashboard: React.FC = () => {
         >
           Staff Management Dashboard
         </motion.h1>
-        <p className="text-gray-600">Monitor team performance and manage support staff</p>
+        <p className="text-gray-600 mb-4">Monitor team performance and manage support staff</p>
+        <div className="flex gap-4 mb-6">
+          <a
+            href="/staff/inquiries"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <BookOpen className="h-4 w-4" />
+            Manage Inquiries
+          </a>
+        </div>
       </div>
 
       {/* Overall Statistics */}
