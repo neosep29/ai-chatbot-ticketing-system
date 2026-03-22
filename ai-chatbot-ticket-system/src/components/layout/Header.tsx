@@ -6,6 +6,7 @@ import {
   User,
   LogOut,
   Settings,
+  BookOpen,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTicket } from "../../context/TicketContext";
