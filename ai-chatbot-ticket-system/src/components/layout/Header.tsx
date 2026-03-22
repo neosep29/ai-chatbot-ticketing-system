@@ -156,6 +156,16 @@ const Header: React.FC = () => {
                     </Link>
                   )}
 
+                  {isStaff && (
+                    <Link
+                      to="/staff/inquiries"
+                      className="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                    >
+                      <BookOpen className="h-5 w-5 mr-1" />
+                      <span>Inquiries</span>
+                    </Link>
+                  )}
+
                   {isAdmin && (
                     <div className="relative group">
                       <button className="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
