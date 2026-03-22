@@ -211,7 +211,7 @@ export const addTicketMessageData = async ({ id, user, content }) => {
     try {
       // Create inquiry from staff answer (disabled for admin review)
       const inquiryResult = await createInquiryData({
-        promptQuestion: `Ticket: ${ticket.title} - User Question: ${ticket.description}`,
+        promptQuestion: ticket.description, // Store only the user's actual question
         promptResponse: content,
         isEnabled: false, // Disabled for admin review first
         createdAt: ticket.createdAt // Use ticket's original creation date
