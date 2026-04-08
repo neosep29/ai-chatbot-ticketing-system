@@ -228,36 +228,31 @@ export const TicketProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   // Update ticket
-  const updateTicket = async (id: string, data: Partial<Ticket>) => {
+  const updateTicket = async (id: string, updates: Partial<Ticket>) => {
     try {
       setLoading(true);
-      setError(null);
-
-      const res = await axios.put(
-        `${API_BASE_URL}/api/tickets/${id}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await axios.put(`${API_BASE_URL}/api/tickets/${id}`, updates, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-      );
+      });
 
       if (res.data.success) {
-        setCurrentTicket(res.data.data);
-
-        // Update ticket in the list
-        setTickets((prevTickets) =>
-          prevTickets.map((ticket) =>
-            ticket._id === id ? res.data.data : ticket,
-          ),
-        );
+        // Update ticket in local state
+        setTickets(prev => prev.map(ticket => 
+          ticket._id === id ? { ...ticket, ...updates, ...res.data.data } : ticket
+        ));
+        
+        // Refresh status counters after update
+        if (isAuthenticated && isAdmin) {
+          await getAllTickets(1, 10);
+        }
       }
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Error updating ticket";
       setError(errorMessage);
-      throw err;
     } finally {
       setLoading(false);
     }
