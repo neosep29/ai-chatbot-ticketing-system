@@ -66,10 +66,18 @@ export const fetchMetricsData = async () => {
 
   if (!relevanceData || relevanceData.length < 2) {
     return {
-      status: 400,
+      status: 200,
       payload: {
-        status: 'error',
-        message: INSUFFICIENT_METRICS_DATA_MESSAGE
+        status: 'warning',
+        message: INSUFFICIENT_METRICS_DATA_MESSAGE,
+        metrics: {
+          confusion_matrix: { tp: 0, fp: 0, fn: 0, tn: 0 },
+          accuracy: 0,
+          precision: 0,
+          recall: 0,
+          f1_score: 0,
+          mean_confidence: 0
+        }
       }
     };
   }
@@ -171,13 +179,15 @@ export const fetchMetricsData = async () => {
     return {
       status: 200,
       payload: {
-        status: 'success',
+        status: 'error',
+        message: METRICS_FETCH_FAILED_MESSAGE,
         metrics: {
           confusion_matrix: { tp: 0, fp: 0, fn: 0, tn: 0 },
           accuracy: 0,
           precision: 0,
           recall: 0,
-          f1_score: 0
+          f1_score: 0,
+          mean_confidence: 0
         }
       }
     };

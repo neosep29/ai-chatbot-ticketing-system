@@ -25,17 +25,24 @@ export const sendMessage = async (req, res) => {
       const lastAssistant = messages.find(entry => entry?.role === 'assistant');
 
       if (lastUser?.content && lastAssistant?.content) {
-        const trainingResult = await sendTrainingData({
-          userInquiry: lastUser.content,
-          aiResponse: lastAssistant.content,
-          isEscalated: Boolean(escalated),
-          chatId: chat._id,
-          userId: chat.userId
-        });
+        // Run training sync in background to prevent blocking the response
+        process.nextTick(async () => {
+          try {
+            const trainingResult = await sendTrainingData({
+              userInquiry: lastUser.content,
+              aiResponse: lastAssistant.content,
+              isEscalated: Boolean(escalated),
+              chatId: chat._id,
+              userId: chat.userId
+            });
 
-        if (trainingResult.status !== 200) {
-          console.warn('Training sync failed:', trainingResult.payload?.message);
-        }
+            if (trainingResult.status !== 200) {
+              console.warn('Training sync failed:', trainingResult.payload?.message);
+            }
+          } catch (syncError) {
+            console.error('Background training sync error:', syncError.message);
+          }
+        });
       }
     }
     return res.status(result.status).json(result.payload);

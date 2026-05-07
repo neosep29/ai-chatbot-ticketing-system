@@ -7,12 +7,6 @@ import axios from 'axios';
 import API_BASE_URL from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 
-interface ConfusionMatrix {
-  tp: number;
-  fp: number;
-  fn: number;
-  tn: number;
-}
 
 interface MetricsResponse {
   status: string;
@@ -21,11 +15,7 @@ interface MetricsResponse {
   trace?: string;
   metrics: {
     accuracy: number;
-    precision: number;
-    recall: number;
-    f1_score: number;
     mean_confidence: number;
-    confusion_matrix: ConfusionMatrix;
   };
 }
 
@@ -90,7 +80,28 @@ const AdminDashboard: React.FC = () => {
         </p>
       </div>
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">GPT-4 Model Evaluation Training Metrics</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Chatbot Performance Metrics</h2>
+        
+        {metrics?.status === 'warning' && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-yellow-800">Insufficient Data</p>
+              <p className="text-sm text-yellow-700">{metrics.message}. Try interacting with the chatbot to generate more evaluation logs.</p>
+            </div>
+          </div>
+        )}
+
+        {metrics?.status === 'error' && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-800">Metrics Error</p>
+              <p className="text-sm text-red-700">{metrics.message}. Please check if the Python service is running on the server.</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           {[
             {
@@ -103,21 +114,6 @@ const AdminDashboard: React.FC = () => {
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               )
             },
-            {
-              label: 'Precision', value: `${metrics?.metrics.precision || 0}%`, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', icon: (
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 7.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-              )
-            },
-            {
-              label: 'Recall', value: `${metrics?.metrics.recall || 0}%`, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', icon: (
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-              )
-            },
-            {
-              label: 'F1-Score', value: `${metrics?.metrics.f1_score || 0}%`, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200', icon: (
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8L13 15m5 0v6m-3-6v6m-4-6v4m-2-4v4" /></svg>
-              )
-            }
           ].map((metric, index) => (
             <motion.div
               key={metric.label}
