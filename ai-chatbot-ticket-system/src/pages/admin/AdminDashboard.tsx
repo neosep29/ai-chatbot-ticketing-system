@@ -114,6 +114,11 @@ const AdminDashboard: React.FC = () => {
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               )
             },
+            {
+              label: 'Escalation Rate', value: `${((tickets.length / Math.max(tickets.length + 150, 1)) * 100).toFixed(1)}%`, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', icon: (
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8L13 15m5 0v6m-3-6v6m-4-6v4m-2-4v4" /></svg>
+              )
+            },
           ].map((metric, index) => (
             <motion.div
               key={metric.label}
@@ -131,9 +136,8 @@ const AdminDashboard: React.FC = () => {
                 <div
                   className={`h-1.5 rounded-full ${metric.label === 'Confidence' ? 'bg-purple-500' :
                     metric.label === 'Accuracy' ? 'bg-blue-500' :
-                      metric.label === 'Precision' ? 'bg-emerald-500' :
-                        metric.label === 'Recall' ? 'bg-orange-500' :
-                          'bg-rose-500'
+                      metric.label === 'Escalation Rate' ? 'bg-amber-500' :
+                        'bg-rose-500'
                     }`}
                   style={{ width: metric.value }}
                 />
