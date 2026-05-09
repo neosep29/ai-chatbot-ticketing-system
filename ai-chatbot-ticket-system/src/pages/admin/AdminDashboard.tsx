@@ -6,6 +6,7 @@ import { useTicket } from '../../context/TicketContext';
 import axios from 'axios';
 import API_BASE_URL from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 
 interface MetricsResponse {
@@ -25,6 +26,8 @@ const AdminDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [staffTicketData, setStaffTicketData] = useState<any[]>([]);
+  const [monthlyTicketData, setMonthlyTicketData] = useState<any[]>([]);
   const { token } = useAuth();
 
   useEffect(() => {
@@ -32,11 +35,86 @@ const AdminDashboard: React.FC = () => {
     getMetrics().then(setMetrics).catch(console.error);
   }, [page, activeFilter]);
 
+  useEffect(() => {
+    fetchStaffTicketData();
+    fetchMonthlyTicketData();
+  }, [tickets]);
+
   const getMetrics = async (): Promise<MetricsResponse> => {
     const response = await axios.get<MetricsResponse>(`${API_BASE_URL}/api/metrics`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
+  };
+
+  const fetchStaffTicketData = async () => {
+    try {
+      // Debug: Log ticket structure
+      console.log('Ticket sample:', tickets[0]);
+      
+      // Group tickets by assigned staff
+      const staffCounts: { [key: string]: number } = {};
+      tickets.forEach(ticket => {
+        // Check different possible staff assignment fields
+        let staffName = 'Unassigned';
+        
+        if (ticket.assignedTo) {
+          if (typeof ticket.assignedTo === 'string') {
+            staffName = ticket.assignedTo;
+          } else if (ticket.assignedTo.name) {
+            staffName = ticket.assignedTo.name;
+          }
+        } else if (ticket.staffName) {
+          staffName = ticket.staffName;
+        }
+        
+        if (staffName !== 'Unassigned') {
+          staffCounts[staffName] = (staffCounts[staffName] || 0) + 1;
+        }
+      });
+      
+      const data = Object.entries(staffCounts).map(([name, count]) => ({
+        name,
+        value: count
+      }));
+      
+      console.log('Staff data:', data);
+      setStaffTicketData(data);
+    } catch (error) {
+      console.error('Error fetching staff ticket data:', error);
+    }
+  };
+
+  const fetchMonthlyTicketData = async () => {
+    try {
+      // Group tickets by month and status
+      const monthlyData: { [key: string]: { total: number; resolved: number } } = {};
+      const currentYear = new Date().getFullYear();
+      
+      tickets.forEach(ticket => {
+        const date = new Date(ticket.createdAt);
+        if (date.getFullYear() === currentYear) {
+          const month = date.toLocaleString('default', { month: 'short' });
+          if (!monthlyData[month]) {
+            monthlyData[month] = { total: 0, resolved: 0 };
+          }
+          monthlyData[month].total++;
+          if (ticket.status === 'resolved' || ticket.status === 'closed') {
+            monthlyData[month].resolved++;
+          }
+        }
+      });
+      
+      const data = Object.entries(monthlyData).map(([month, data]) => ({
+        month,
+        total: data.total,
+        resolved: data.resolved
+      }));
+      
+      setMonthlyTicketData(data);
+    } catch (error) {
+      console.error('Error fetching monthly ticket data:', error);
+    }
   };
 
   const getTicketStatusCount = (status: string) => {
@@ -145,26 +223,75 @@ const AdminDashboard: React.FC = () => {
             </motion.div>
           ))}
         </div>
-        
         <div className="flex justify-center mt-6 gap-4">
-          <button onClick={() => navigate('/admin/inquiry-relevance')} className="px-4 py-2 rounded-md bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition">
-            Evaluate Output Relevance
-          </button>
           <button onClick={() => navigate('/admin/beta-reset')} className="px-4 py-2 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition">
             Beta Reset
           </button>
         </div>
-      </div>
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Ticket Overview</h2>
-        <div className="mb-4">
-          {/* <button
-            onClick={() => navigate('/admin/staff')}
-            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Pie Chart - Tickets per Staff */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white border border-gray-200 rounded-lg p-6"
           >
-            <UserCheck className="h-5 w-5 mr-2" />
-            Manage Staff
-          </button> */}
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tickets per Staff</h3>
+            {staffTicketData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={staffTicketData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {staffTicketData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'][index % 5]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                No ticket data available
+              </div>
+            )}
+          </motion.div>
+
+          {/* Bar Chart - Tickets Resolved per Month */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-white border border-gray-200 rounded-lg p-6"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tickets Resolved per Month</h3>
+            {monthlyTicketData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyTicketData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="total" fill="#3b82f6" name="Total Tickets" />
+                  <Bar dataKey="resolved" fill="#10b981" name="Resolved Tickets" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                No monthly data available
+              </div>
+            )}
+          </motion.div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div
