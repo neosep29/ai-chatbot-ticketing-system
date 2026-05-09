@@ -102,7 +102,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-6">
           {[
             {
               label: 'Confidence', value: `${metrics?.metrics.mean_confidence || 0}%`, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', icon: (
